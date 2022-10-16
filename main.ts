@@ -194,23 +194,13 @@ export default class MyPlugin extends Plugin {
     });
 
     if (filteredValues.length === 0) filteredValues = this.annotations;
-    //   if (suggestion.type === 'item')
-    //   return `- ${suggestion.label}::${suggestion.value}`;
-    // return `[${suggestion.label}::${suggestion.value}]`;
 
-    const valuesWithDefault: (Annotation & { content?: string })[] =
-      filteredValues;
-    filteredValues.forEach((filter) => {
-      if (!filter.defaultContent) return;
-      valuesWithDefault.push({ ...filter, content: filter.defaultContent });
-    });
-
-    return valuesWithDefault.map((v) => {
+    return filteredValues.map((v) => {
       let content = ctx.query;
       if (this.settings.separator) {
         content = ctx.query.split(this.settings.separator)?.[1] ?? '';
       }
-      if (v.content === 'today') {
+      if (v.defaultContent === 'today' && !content) {
         content = window.moment().format('YYYY-MM-DD');
       }
       const value =
