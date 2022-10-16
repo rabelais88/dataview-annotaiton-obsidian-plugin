@@ -1,0 +1,10 @@
+{
+  "id": "dataview-annotation-obsidian-plugin",
+  "name": "Dataview Annotation",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "WIP",
+  "author": "Park Sungryeol",
+  "authorUrl": "https://github.com/rabelais88/dataview-annotation-obsidian-plugin",
+  "isDesktopOnly": false
+}
