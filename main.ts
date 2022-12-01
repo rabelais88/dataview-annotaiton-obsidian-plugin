@@ -30,8 +30,10 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 interface Annotation {
   name: string;
-  type: 'item' | 'value';
-  defaultContent?: 'today';
+  type: 'item' | 'value' | 'task';
+  label?: string;
+  content?: 'today' | 'tomorrow' | 'now';
+  newLine?: boolean;
 }
 interface FrontMatterOptions extends FrontMatterCache {
   dataviewAnnotation: boolean;
@@ -186,11 +188,13 @@ export default class MyPlugin extends Plugin {
 
     let filteredValues = this.annotations.filter((v) => {
       if (!this.settings.separator) {
-        return v.name.includes(ctx.query);
+        const labelIncluded = v.label && v.label?.includes(ctx.query);
+        return (v.name ?? '').includes(ctx.query) || labelIncluded;
       }
       // exclude texts beyond separator
       const q = ctx.query.split(this.settings.separator);
-      return v.name.includes(q[0] ?? '');
+      const labelIncluded = v.label && v.label?.includes(q[0] ?? '');
+      return (v.name ?? '').includes(q[0] ?? '') || labelIncluded;
     });
 
     if (filteredValues.length === 0) filteredValues = this.annotations;
@@ -200,15 +204,24 @@ export default class MyPlugin extends Plugin {
       if (this.settings.separator) {
         content = ctx.query.split(this.settings.separator)?.[1] ?? '';
       }
-      if (v.defaultContent === 'today' && !content) {
+      if (v.content === 'today') {
         content = window.moment().format('YYYY-MM-DD');
       }
-      const value =
-        v.type === 'item'
-          ? `- ${v.name}::${content}`
-          : `[${v.name}::${content}]`;
+      if (v.content === 'tomorrow') {
+        content = window.moment().add(1, 'days').format('YYYY-MM-DD');
+      }
+      if (v.content === 'now') {
+        content = window.moment().format('HH:mm');
+      }
+
+      // v.type === 'item'
+      let value = `- ${v.name ? `${v.name}::` : ''}${content}`;
+      if (v.type === 'value') value = `[${v.name}::${content}]`;
+      if (v.type === 'task')
+        value = ` - [ ] ${v.name ? `${v.name}:` : ''}${content}`;
+      if (v.newLine) value = `\n${value}`;
       return {
-        label: value,
+        label: `${v.label ? `(${v.label})` : ''}${value}`,
         value,
         type: v.type,
       };
