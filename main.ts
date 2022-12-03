@@ -218,7 +218,7 @@ export default class MyPlugin extends Plugin {
       let value = `- ${v.name ? `${v.name}::` : ''}${content}`;
       if (v.type === 'value') value = `[${v.name}::${content}]`;
       if (v.type === 'task')
-        value = ` - [ ] ${v.name ? `${v.name}:` : ''}${content}`;
+        value = `- [ ] ${v.name ? `${v.name}:` : ''}${content}`;
       if (v.newLine) value = `\n${value}`;
       return {
         label: `${v.label ? `(${v.label})` : ''}${value}`,
